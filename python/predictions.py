@@ -11,6 +11,7 @@ import util.parameters as params
 from util.data_processing import *
 from util.evaluate import *
 import pickle
+import pdb
 
 FIXED_PARAMETERS = params.load_parameters()
 modname = FIXED_PARAMETERS["model_name"]
@@ -84,8 +85,8 @@ class modelClassifier:
         indices = range(start_index, end_index)
         premise_vectors = np.vstack([dataset[i]['sentence1_binary_parse_index_sequence'] for i in indices])
         hypothesis_vectors = np.vstack([dataset[i]['sentence2_binary_parse_index_sequence'] for i in indices])
-        labels = [dataset[i]['label'] for i in indices]
-        return premise_vectors, hypothesis_vectors, labels
+        #labels = [dataset[i]['label'] for i in indices]
+        return premise_vectors, hypothesis_vectors
 
     def classify(self, examples):
         # This classifies a list of examples
@@ -96,7 +97,7 @@ class modelClassifier:
         logger.Log("Model restored from file: %s" % best_path)
 
         logits = np.empty(3)
-        minibatch_premise_vectors, minibatch_hypothesis_vectors, minibatch_labels = self.get_minibatch(examples, 0, len(examples))
+        minibatch_premise_vectors, minibatch_hypothesis_vectors = self.get_minibatch(examples, 0, len(examples))
         feed_dict = {self.model.premise_x: minibatch_premise_vectors, 
                             self.model.hypothesis_x: minibatch_hypothesis_vectors, 
                             self.model.keep_rate_ph: 1.0}

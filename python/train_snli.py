@@ -10,6 +10,7 @@ from util import logger
 import util.parameters as params
 from util.data_processing import *
 from util.evaluate import *
+import pdb
 
 FIXED_PARAMETERS = params.load_parameters()
 modname = FIXED_PARAMETERS["model_name"]
@@ -100,7 +101,8 @@ class modelClassifier:
         return premise_vectors, hypothesis_vectors, labels, genres
 
 
-    def train(self, train_mnli, train_snli, dev_mat, dev_mismat, dev_snli):        
+    def train(self, train_mnli, train_snli, dev_mat, dev_mismat, dev_snli):     	
+        pdb.set_trace()
         self.sess = tf.Session()
         self.sess.run(self.init)
 
@@ -161,7 +163,7 @@ class modelClassifier:
                     logger.Log("Step: %i\t Dev-matched acc: %f\t Dev-mismatched acc: %f\t Dev-SNLI acc: %f\t SNLI train acc: %f" %(self.step, dev_acc_mat, dev_acc_mismat, dev_acc_snli, strain_acc))
                     logger.Log("Step: %i\t Dev-matched cost: %f\t Dev-mismatched cost: %f\t Dev-SNLI cost: %f\t SNLI train cost: %f" %(self.step, dev_cost_mat, dev_cost_mismat, dev_cost_snli, strain_cost))
 
-                if self.step % 500 == 0:
+                if self.step % 50 == 0:
                     self.saver.save(self.sess, ckpt_file)
                     best_test = 100 * (1 - self.best_dev_snli / dev_acc_snli)
                     if best_test > 0.04:
