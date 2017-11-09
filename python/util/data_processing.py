@@ -7,6 +7,8 @@ import parameters as params
 import pickle
 
 FIXED_PARAMETERS = params.load_parameters()
+SENTENCE1 = "sentence1"
+SENTENCE2 = "sentence2"
 
 LABEL_MAP = {
     "entailment": 0,
@@ -26,13 +28,19 @@ def load_nli_data(path, snli=False):
     data = []
     with open(path) as f:
         for line in f:
-            loaded_example = json.loads(line)
-            if loaded_example["gold_label"] not in LABEL_MAP:
-                continue
-            loaded_example["label"] = LABEL_MAP[loaded_example["gold_label"]]
-            if snli:
-                loaded_example["genre"] = "snli"
-            data.append(loaded_example)
+            # try:
+                # print line
+                loaded_example = json.loads(line)
+                if loaded_example["gold_label"] not in LABEL_MAP:
+                    continue
+                loaded_example["label"] = LABEL_MAP[loaded_example["gold_label"]]
+                if snli:
+                    loaded_example["genre"] = "snli"
+                data.append(loaded_example)
+            # except ValueError as exc:
+            #     print line
+            #     raise exc
+
         random.seed(1)
         random.shuffle(data)
     return data
@@ -69,8 +77,8 @@ def build_dictionary(training_datasets):
     word_counter = collections.Counter()
     for i, dataset in enumerate(training_datasets):
         for example in dataset:
-            word_counter.update(tokenize(example['sentence1_binary_parse']))
-            word_counter.update(tokenize(example['sentence2_binary_parse']))
+            word_counter.update(tokenize(example[SENTENCE1]))
+            word_counter.update(tokenize(example[SENTENCE2]))
         
     vocabulary = set([word for word in word_counter])
     vocabulary = list(vocabulary)
@@ -86,7 +94,7 @@ def sentences_to_padded_index_sequences(word_indices, datasets):
     """
     for i, dataset in enumerate(datasets):
         for example in dataset:
-            for sentence in ['sentence1_binary_parse', 'sentence2_binary_parse']:
+            for sentence in [SENTENCE1, SENTENCE2]:
                 example[sentence + '_index_sequence'] = np.zeros((FIXED_PARAMETERS["seq_length"]), dtype=np.int32)
 
                 token_sequence = tokenize(example[sentence])

@@ -13,6 +13,9 @@ from util.evaluate import *
 import pickle
 import pdb
 
+SENTENCE1 = "sentence1"
+SENTENCE2 = "sentence2"
+
 FIXED_PARAMETERS = params.load_parameters()
 modname = FIXED_PARAMETERS["model_name"]
 logpath = os.path.join(FIXED_PARAMETERS["log_path"], modname) + ".log"
@@ -83,8 +86,8 @@ class modelClassifier:
 
     def get_minibatch(self, dataset, start_index, end_index):
         indices = range(start_index, end_index)
-        premise_vectors = np.vstack([dataset[i]['sentence1_binary_parse_index_sequence'] for i in indices])
-        hypothesis_vectors = np.vstack([dataset[i]['sentence2_binary_parse_index_sequence'] for i in indices])
+        premise_vectors = np.vstack([dataset[i][SENTENCE1+'_index_sequence'] for i in indices])
+        hypothesis_vectors = np.vstack([dataset[i][SENTENCE2+'_index_sequence'] for i in indices])
         #labels = [dataset[i]['label'] for i in indices]
         return premise_vectors, hypothesis_vectors
 

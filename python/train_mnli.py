@@ -12,6 +12,9 @@ import util.parameters as params
 from util.data_processing import *
 from util.evaluate import *
 
+SENTENCE1 = "sentence1"
+SENTENCE2 = "sentence2"
+
 FIXED_PARAMETERS = params.load_parameters()
 modname = FIXED_PARAMETERS["model_name"]
 logpath = os.path.join(FIXED_PARAMETERS["log_path"], modname) + ".log"
@@ -73,7 +76,7 @@ class modelClassifier:
         ## Define hyperparameters
         self.learning_rate =  FIXED_PARAMETERS["learning_rate"]
         self.display_epoch_freq = 1
-        self.display_step_freq = 50
+        self.display_step_freq = 250
         self.embedding_dim = FIXED_PARAMETERS["word_embedding_dim"]
         self.dim = FIXED_PARAMETERS["hidden_embedding_dim"]
         self.batch_size = FIXED_PARAMETERS["batch_size"]
@@ -100,8 +103,8 @@ class modelClassifier:
 
     def get_minibatch(self, dataset, start_index, end_index):
         indices = range(start_index, end_index)
-        premise_vectors = np.vstack([dataset[i]['sentence1_binary_parse_index_sequence'] for i in indices])
-        hypothesis_vectors = np.vstack([dataset[i]['sentence2_binary_parse_index_sequence'] for i in indices])
+        premise_vectors = np.vstack([dataset[i][SENTENCE1+'_index_sequence'] for i in indices])
+        hypothesis_vectors = np.vstack([dataset[i][SENTENCE2+'_index_sequence'] for i in indices])
         genres = [dataset[i]['genre'] for i in indices]
         labels = [dataset[i]['label'] for i in indices]
         return premise_vectors, hypothesis_vectors, labels, genres
@@ -149,12 +152,15 @@ class modelClassifier:
             random.shuffle(training_data)
             avg_cost = 0.
             total_batch = int(len(training_data) / self.batch_size)
+            logger.Log("total_batch: %i\t, len(training_data): %i\t, batch_size: %i\t " %(total_batch, len(training_data), self.batch_size))
+            
 
             # Loop over all batches in epoch
             for i in range(total_batch):
+                logger.Log("step: %i\t " %(self.step))
+            
                 # Assemble a minibatch of the next B examples
-                minibatch_premise_vectors, minibatch_hypothesis_vectors, minibatch_labels, minibatch_genres = self.get_minibatch(
-                    training_data, self.batch_size * i, self.batch_size * (i + 1))
+                minibatch_premise_vectors, minibatch_hypothesis_vectors, minibatch_labels, minibatch_genres = self.get_minibatch(training_data, self.batch_size * i, self.batch_size * (i + 1))
                 
                 # Run the optimizer to take a gradient step, and also fetch the value of the 
                 # cost function for logging

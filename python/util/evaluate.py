@@ -86,12 +86,19 @@ def predictions_kaggle(classifier, eval_set, batch_size, name):
 
     hypotheses = classifier(eval_set)
     predictions = []
-    
+
+    correct_result_count = 0
+    total_count = len(eval_set)
     for i in range(len(eval_set)):
         hypothesis = hypotheses[i]
         prediction = INVERSE_MAP[hypothesis]
-        pairID = eval_set[i]["pairID"]  
-        predictions.append((pairID, prediction))
+        pairID = eval_set[i]["pairID"]
+        sentence1 = eval_set[i]["sentence1"]
+        sentence2 = eval_set[i]["sentence2"]
+        actual_label = eval_set[i]["gold_label"]
+        if actual_label == prediction:
+            correct_result_count += 1
+        predictions.append((pairID, prediction, actual_label, sentence1, sentence2))
 
     #predictions = sorted(predictions, key=lambda x: int(x[0]))
 
@@ -100,4 +107,6 @@ def predictions_kaggle(classifier, eval_set, batch_size, name):
     w.writerow(['pairID','gold_label'])
     for example in predictions:
         w.writerow(example)
+    w.writerow("correct results = " + str(correct_result_count)+", Total count = "+str(total_count))
+    w.writerow("accuracy = " + str(float(correct_result_count)/float(total_count)))
     f.close()
